@@ -1,0 +1,11 @@
+.github/
+.vscode/
+node_modules/
+src/
+out/*.map
+.gitignore
+rome.json
+tsconfig.json
+pnpm-lock.yaml
+*.md
+*.vsix

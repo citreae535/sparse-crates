@@ -1,0 +1,109 @@
+{
+  "private": true,
+  "name": "sparse-crates",
+  "version": "0.1.0",
+  "publisher": "citreae535",
+  "engines": {
+    "vscode": "^1.72.0",
+    "node": ">=16"
+  },
+  "license": "MIT",
+  "displayName": "Sparse Crates",
+  "description": "Helps Rust developers spot outdated dependencies in `Cargo.toml` manifest files. Supports crates.io, alternate registries, and crates.io mirrors that offers the sparse protocol.",
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "rust",
+    "cargo",
+    "crates"
+  ],
+  "main": "./out/extension.cjs",
+  "activationEvents": [
+    "workspaceContains:**/Cargo.toml"
+  ],
+  "contributes": {
+    "configuration": {
+      "title": "Sparse Crates",
+      "properties": {
+        "sparse-crates.useCargoCache": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "If true, Cargo's index cache is searched first before the registries. Cache must be stored in the sparse format."
+        },
+        "sparse-crates.cratesIoIndex": {
+          "type": "string",
+          "scope": "resource",
+          "format": "uri",
+          "default": "https://index.crates.io/",
+          "description": "The index URL of the default crates.io registry. Change this value only if you use a mirror of crates.io. The index must use the sparse protocol. Use a file URL if the mirror is on disk."
+        },
+        "sparse-crates.cratesIoCache": {
+          "type": "string",
+          "scope": "resource",
+          "default": "index.crates.io-6f17d22bba15001f",
+          "markdownDescription": "The index cache directory of the default crates.io registry. Change this value only if you use a remote or local mirror of crates.io. You can find the directories at CARGO_HOME/registry/index."
+        },
+        "sparse-crates.registries": {
+          "type": "array",
+          "scope": "resource",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The name of the registry. It must be the same as your dependencies' \"registry\" key."
+              },
+              "index": {
+                "type": "string",
+                "format": "uri",
+                "description": "The index URL of the registry. The index must use the sparse protocol. Use a file URL if the registry is on disk."
+              },
+              "cache": {
+                "type": "string",
+                "description": "Cargo's index cache directory of the registry. You can find the directories at CARGO_HOME/registry/index. Cache is not searched for the registry if this property is not given."
+              },
+              "docs": {
+                "type": "string",
+                "format": "uri",
+                "description": "The docs URL of the registry, if one exists. The link to the docs of a specific version of a crate is obtained by `${docs}${name}/${version}`. This is only used when rendering hover messages on the decorators."
+              }
+            },
+            "required": [
+              "name",
+              "index"
+            ]
+          },
+          "default": [],
+          "description": "A list of alternate registries. The index of an alternate registry must support the sparse protocol."
+        }
+      }
+    }
+  },
+  "extensionKind": [
+    "workspace"
+  ],
+  "type": "module",
+  "scripts": {
+    "vscode:prepublish": "pnpm run esbuild-base --minify",
+    "esbuild-base": "tsc && rome ci src && esbuild src/extension.ts --outfile=out/extension.cjs --bundle --external:vscode --platform=node --target=node16",
+    "build": "pnpm run esbuild-base --sourcemap",
+    "watch": "pnpm run esbuild-base --sourcemap --watch",
+    "package": "pnpm vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/eslint": "^8.21.3",
+    "@types/node": "^18.15.3",
+    "@types/semver": "^7.3.13",
+    "@types/vscode": "1.72.0",
+    "esbuild": "^0.17.12",
+    "rome": "^11.0.0",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.1",
+    "semver": "^7.3.8",
+    "toml-eslint-parser": "^0.5.0"
+  }
+}
