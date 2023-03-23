@@ -2,7 +2,15 @@
   "private": true,
   "name": "sparse-crates",
   "version": "0.1.0",
+  "author": {
+    "name": "citreae535"
+  },
   "publisher": "citreae535",
+  "homepage": "https://github.com/citreae535/sparse-crates",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/citreae535/sparse-crates.git"
+  },
   "engines": {
     "vscode": "^1.72.0",
     "node": ">=16"
