@@ -4,6 +4,8 @@
 
 This is a fork of the extension [**crates**](https://github.com/serayuzgur/crates) by [Seray Uzgur](https://github.com/serayuzgur) with significant changes and rewrites.
 
+![Sparse Crates in Action](https://github.com/citreae535/sparse-crates/blob/main/sparse_crates_in_action.png)
+
 ## New Features
 
 - Cargo's new [sparse protocol](https://rust-lang.github.io/rfcs/2789-sparse-index.html)
