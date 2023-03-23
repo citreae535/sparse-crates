@@ -115,7 +115,7 @@ async function fetchRemote(
       },
       headers: {
         'User-Agent':
-          'VSCode.SparseCrates (https://marketplace.visualstudio.com/items?itemName=citreae535.sparse_crates)',
+          'VSCode.SparseCrates (https://marketplace.visualstudio.com/items?itemName=citreae535.sparse-crates)',
       },
     },
     30000,
