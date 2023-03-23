@@ -4,7 +4,7 @@
 
 This is a fork of the extension [**crates**](https://github.com/serayuzgur/crates) by [Seray Uzgur](https://github.com/serayuzgur) with significant changes and rewrites.
 
-![Sparse Crates in Action](https://github.com/citreae535/sparse-crates/blob/main/sparse_crates_in_action.png)
+![Sparse Crates in Action](https://github.com/citreae535/sparse-crates/raw/main/sparse_crates_in_action.png)
 
 ## New Features
 
