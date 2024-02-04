@@ -1,4 +1,4 @@
-import semver from 'semver';
+import semver from "semver";
 import type {
   TOMLBare,
   TOMLContentNode,
@@ -6,7 +6,7 @@ import type {
   TOMLQuoted,
   TOMLStringValue,
   TOMLTable,
-} from 'toml-eslint-parser/lib/ast';
+} from "toml-eslint-parser/lib/ast";
 
 /**
  * A Cargo dependency specification
@@ -42,7 +42,7 @@ export function parseCargoDependencies(body: TOMLTable[]): Dependency[] {
         if (isDependencyKey(keys[0])) {
           // [dependencies.tokio]
           return parseSingleDependency(keys[1], node.body);
-        } else if (keys[0] === 'workspace' && isDependencyKey(keys[1])) {
+        } else if (keys[0] === "workspace" && isDependencyKey(keys[1])) {
           // [workspace.dependencies]
           // tokio = "1"
           // clap = { version = "4" }
@@ -51,10 +51,10 @@ export function parseCargoDependencies(body: TOMLTable[]): Dependency[] {
           return;
         }
       } else if (keys.length === 3) {
-        if (keys[0] === 'workspace' && isDependencyKey(keys[1])) {
+        if (keys[0] === "workspace" && isDependencyKey(keys[1])) {
           // [workspace.dependencies.tokio]
           return parseSingleDependency(keys[2], node.body);
-        } else if (keys[0] === 'target' && isDependencyKey(keys[2])) {
+        } else if (keys[0] === "target" && isDependencyKey(keys[2])) {
           // [target.whatever.dependencies]
           // tokio = "1"
           // clap = { version = "4" }
@@ -64,7 +64,7 @@ export function parseCargoDependencies(body: TOMLTable[]): Dependency[] {
         }
       } else if (
         keys.length === 4 &&
-        keys[0] === 'target' &&
+        keys[0] === "target" &&
         isDependencyKey(keys[2])
       ) {
         // [target.whatever.dependencies.tokio]
@@ -99,16 +99,16 @@ function parseSingleDependency(
     if (node.key.keys.length === 1) {
       const key = getKeyString(node.key.keys[0]);
       const value = node.value;
-      if (key === 'version' && isTOMLStringValue(value)) {
+      if (key === "version" && isTOMLStringValue(value)) {
         const v = parseVersionRange(value.value);
         if (v !== undefined) {
           version = v;
           // TOML parser lines are 1-based, but VSCode lines are 0-based
           line = node.loc.end.line - 1;
         }
-      } else if (key === 'package' && isTOMLStringValue(value)) {
+      } else if (key === "package" && isTOMLStringValue(value)) {
         name = value.value;
-      } else if (key === 'registry' && isTOMLStringValue(value)) {
+      } else if (key === "registry" && isTOMLStringValue(value)) {
         registry = value.value;
       }
     }
@@ -152,7 +152,7 @@ function parseMultipleDependencies(body: TOMLKeyValue[]): Dependency[] {
         } else {
           return;
         }
-      } else if (value.type === 'TOMLInlineTable') {
+      } else if (value.type === "TOMLInlineTable") {
         // crate_name = { version = "version" ... }
         return parseSingleDependency(key, value.body);
       } else {
@@ -168,10 +168,10 @@ function parseVersionRange(s: string): semver.Range | undefined {
     // Cargo uses comma to separated multiple "and" requirements, but semver uses whitespace
     return new semver.Range(
       s
-        .split(',')
+        .split(",")
         .map((s) => s.trim())
         .map(plainVersionCompatibilityFix)
-        .join(' '),
+        .join(" "),
     );
   } catch {
     return;
@@ -200,12 +200,12 @@ function plainVersionCompatibilityFix(s: string): string {
 }
 
 function isTOMLStringValue(v: TOMLContentNode): v is TOMLStringValue {
-  return v.type === 'TOMLValue' && v.kind === 'string';
+  return v.type === "TOMLValue" && v.kind === "string";
 }
 
 /** Returns the name of the TOML bare or quoted key */
 function getKeyString(key: TOMLBare | TOMLQuoted): string {
-  if (key.type === 'TOMLBare') {
+  if (key.type === "TOMLBare") {
     return key.name;
   } else {
     return key.value;
@@ -215,8 +215,8 @@ function getKeyString(key: TOMLBare | TOMLQuoted): string {
 /** Returns whether the TOML bare or quoted key name indicates the presence of a Cargo dependency table */
 function isDependencyKey(name: string): boolean {
   return (
-    name === 'dependencies' ||
-    name === 'dev-dependencies' ||
-    name === 'build-dependencies'
+    name === "dependencies" ||
+    name === "dev-dependencies" ||
+    name === "build-dependencies"
   );
 }

@@ -1,6 +1,6 @@
-import { window } from 'vscode';
+import { window } from "vscode";
 
-const outputChannel = window.createOutputChannel('Sparse Crates', 'log');
+const outputChannel = window.createOutputChannel("Sparse Crates", "log");
 
 function info(msg: string) {
   outputChannel.appendLine(`${new Date().toISOString()} [info] ${msg}`);

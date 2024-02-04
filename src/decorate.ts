@@ -1,23 +1,23 @@
-import path from 'path';
+import path from "path";
 
-import semver from 'semver';
-import { parseTOML, ParseError } from 'toml-eslint-parser';
-import type { TOMLProgram, TOMLTable } from 'toml-eslint-parser/lib/ast/ast.js';
+import semver from "semver";
+import { parseTOML, ParseError } from "toml-eslint-parser";
+import type { TOMLProgram, TOMLTable } from "toml-eslint-parser/lib/ast/ast.js";
 import {
   type DecorationOptions,
   MarkdownString,
   type TextEditor,
   window,
-} from 'vscode';
+} from "vscode";
 
-import { getRegistry, getUseCargoCache } from './config.js';
-import { fetchVersions } from './fetch.js';
-import log from './log.js';
-import { parseCargoDependencies } from './parse.js';
+import { getRegistries, getUseCargoCache } from "./config.js";
+import { fetchVersions } from "./fetch.js";
+import log from "./log.js";
+import { parseCargoDependencies } from "./parse.js";
 
 const DECORATION_TYPE = window.createTextEditorDecorationType({
   after: {
-    margin: '2em',
+    margin: "2em",
   },
 });
 
@@ -34,23 +34,58 @@ export async function decorate(editor: TextEditor) {
     );
   } else {
     const dependencies = parseCargoDependencies(
-      toml.body[0].body.filter((v): v is TOMLTable => v.type === 'TOMLTable'),
+      toml.body[0].body.filter((v): v is TOMLTable => v.type === "TOMLTable"),
     );
     const options = await Promise.all(
       dependencies.map(async (d): Promise<DecorationOptions> => {
-        const registry = getRegistry(d.registry, scope);
+        const registries = await getRegistries();
+        const registryProperty = d.registry?.toString();
+
+        let versionsResult: semver.SemVer[] | Error | undefined = undefined;
+
+        const registry = registries.default;
         const docs = registry instanceof Error ? undefined : registry.docs;
-        let versionsResult: semver.SemVer[] | Error;
+
         if (registry instanceof Error) {
           log.error(`${d.name} - ${registry.message}`);
-          versionsResult = registry;
         } else {
-          versionsResult = await fetchVersions(
-            d.name,
-            registry,
-            getUseCargoCache(scope),
-          );
+          if (
+            registryProperty === undefined ||
+            (registryProperty !== undefined &&
+              registryProperty === registry.name)
+          ) {
+            versionsResult = await fetchVersions(
+              d.name,
+              registry,
+              getUseCargoCache(scope),
+            );
+          }
         }
+
+        if (versionsResult === undefined) {
+          const otherRegistries = registries.secondary;
+          for (const otherRegistry of otherRegistries) {
+            if (
+              registryProperty === undefined ||
+              (registryProperty !== undefined &&
+                registryProperty === otherRegistry.name)
+            ) {
+              versionsResult = await fetchVersions(
+                d.name,
+                otherRegistry,
+                getUseCargoCache(scope),
+              );
+            }
+          }
+        }
+
+        if (versionsResult === undefined) {
+          log.error(
+            `${d.name} - no registry found for ${d.registry} or default registry`,
+          );
+          versionsResult = new Error("no crate found in configured registries");
+        }
+
         const { hoverMessage, contentText } = decorateDependency(
           d.name,
           d.version,
@@ -77,11 +112,11 @@ export async function decorate(editor: TextEditor) {
   }
 }
 
-const SYMBOL_UP_TO_DATE = '✅';
+const SYMBOL_UP_TO_DATE = "✅";
 // TODO: parse Cargo.lock
 //const SYMBOL_OLD_LOCKED = '⛔';
-const SYMBOL_UPGRADABLE = '❌';
-const SYMBOL_ERROR = '❗❗❗';
+const SYMBOL_UPGRADABLE = "❌";
+const SYMBOL_ERROR = "❗❗❗";
 
 function decorateDependency(
   name: string,
@@ -144,7 +179,7 @@ function getHoverMessage(
   s.appendMarkdown(`- **Latest**: ${getLink(latest, name, docs)}\n\n`);
   // TODO: parse Cargo.lock
   //`**Locked version**: ${getVersionMarkdown(locked, name, docs)}\n\n`
-  s.appendMarkdown('- **Locked**: feature not implemented\n\n');
+  s.appendMarkdown("- **Locked**: feature not implemented\n\n");
   return s;
 }
 
@@ -156,7 +191,7 @@ function getLink(
   if (v === null) {
     return `no versions of the crate ${name} satisfy the given requirement`;
   } else if (v === undefined) {
-    return 'not available';
+    return "not available";
   } else if (docs === undefined) {
     return v.format();
   } else {

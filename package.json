@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "sparse-crates",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "citreae535"
   },
@@ -31,13 +31,33 @@
     "workspaceContains:**/Cargo.toml"
   ],
   "contributes": {
+    "commands": [  
+      {  
+        "command": "sparse-crates.updateRepositories",  
+        "title": "Update repositories to latest list from config file and vscode settings",  
+        "category": "Sparse Crates"  
+      }  
+    ],  
+    "menus": {  
+      "commandPalette": [  
+        {  
+          "command": "sparse-crates.updateRepositories"
+        }  
+      ]
+    },
     "configuration": {
       "title": "Sparse Crates",
       "properties": {
-        "sparse-crates.useCargoCache": {
+        "sparse-crates.useCargoConfig": {
           "type": "boolean",
           "scope": "resource",
           "default": true,
+          "description": "If true, the extension reads the `~/.cargo/config.toml` and `~/.cargo/credentials.toml`. If the config sets a default, it will not use the cratesIoIndex config value and use the configured default instead. It will determine which registries have credentials configured for them and will use the authentication for those registries. It will check the default registry first, then will check the registries in the cargo config and then the registries defined in sparse-crates.registries config."
+        },
+        "sparse-crates.useCargoCache": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": false,
           "description": "If true, Cargo's index cache is searched first before the registries. Cache must be stored in the sparse format."
         },
         "sparse-crates.cratesIoIndex": {
@@ -110,6 +130,7 @@
     "typescript": "^5.0.2"
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
     "node-fetch": "^3.3.1",
     "semver": "^7.3.8",
     "toml-eslint-parser": "^0.5.0"
