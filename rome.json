@@ -12,6 +12,7 @@
   },
   "javascript": {
     "formatter": {
+      "quoteStyle": "single",
       "semicolons": "always",
       "trailingComma": "all"
     }
