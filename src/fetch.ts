@@ -1,16 +1,16 @@
-import { readFile } from "fs/promises";
-import http from "http";
-import https from "https";
-import os from "os";
-import path from "path";
-import { fileURLToPath } from "url";
+import { readFile } from 'fs/promises';
+import http from 'http';
+import https from 'https';
+import os from 'os';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import fetch from "node-fetch";
-import type { AbortError, FetchError, RequestInit } from "node-fetch";
-import semver from "semver";
+import fetch from 'node-fetch';
+import type { AbortError, FetchError, RequestInit } from 'node-fetch';
+import semver from 'semver';
 
-import type { Registry } from "./config.js";
-import log from "./log.js";
+import type { Registry } from './config.js';
+import log from './log.js';
 
 interface VersionsCache {
   versions: semver.SemVer[];
@@ -45,8 +45,8 @@ class CrateVersionsCache {
 
 const crateVersionsCache = new CrateVersionsCache();
 
-type LocalSource = "local registry" | "cache";
-type Source = "registry" | LocalSource;
+type LocalSource = 'local registry' | 'cache';
+type Source = 'registry' | LocalSource;
 
 export async function fetchVersions(
   name: string,
@@ -59,7 +59,7 @@ export async function fetchVersions(
       const v = await fetchLocal(
         name,
         resolveCacheDir(registry.cache),
-        "cache",
+        'cache',
       );
       if (!(v instanceof Error)) {
         crateVersionsCache.set(name, v);
@@ -71,11 +71,11 @@ export async function fetchVersions(
         registry.token !== undefined ? { Authorization: registry.token } : {};
 
       let v: semver.SemVer[] | Error;
-      if (registry.index.protocol === "file") {
+      if (registry.index.protocol === 'file') {
         v = await fetchLocal(
           name,
           fileURLToPath(registry.index),
-          "local registry",
+          'local registry',
         );
       } else {
         v = await fetchRemote(name, registry.index, authHeader);
@@ -111,15 +111,15 @@ async function fetchRemote(
     url,
     {
       agent: (url) => {
-        if (url.protocol === "https:") {
+        if (url.protocol === 'https:') {
           return httpsAgent;
         } else {
           return httpAgent;
         }
       },
       headers: {
-        "User-Agent":
-          "VSCode.SparseCrates (https://marketplace.visualstudio.com/items?itemName=citreae535.sparse-crates)",
+        'User-Agent':
+          'VSCode.SparseCrates (https://marketplace.visualstudio.com/items?itemName=citreae535.sparse-crates)',
         ...extraHeaders,
       },
     },
@@ -128,15 +128,15 @@ async function fetchRemote(
   if (response instanceof Error) {
     const e = response;
     let message: string;
-    if (e.name === "AbortError") {
-      message = "connection to registry timeout";
+    if (e.name === 'AbortError') {
+      message = 'connection to registry timeout';
     } else {
       message = `registry fetch error: ${e.message}`;
     }
     log.error(`${name} - ${message}`);
     return new Error(message);
   } else if (response.ok) {
-    return parseIndex(name, response.buffer, "registry");
+    return parseIndex(name, response.buffer, 'registry');
   } else {
     let message: string;
     if (
@@ -165,7 +165,7 @@ async function fetchLocal(
   if (buffer instanceof Error) {
     const e = buffer;
     let message: string;
-    if (e?.code === "ENOENT") {
+    if (e?.code === 'ENOENT') {
       message = `crate not found in ${source}`;
     } else {
       message = `${source} read error: ${e}`;
@@ -194,7 +194,7 @@ function parseIndex(
   source: Source,
 ): semver.SemVer[] | Error {
   let lines: string[];
-  if (source === "cache") {
+  if (source === 'cache') {
     // The cache format is Cargo's internal implementation detail.
     // https://docs.rs/cargo/0.69.0/src/cargo/sources/registry/index.rs.html#690
     const cacheVersion = buffer.readUInt8(0);
@@ -209,12 +209,12 @@ function parseIndex(
       return new Error(message);
     } else {
       lines = buffer
-        .toString("utf8", 5)
-        .split("\0")
+        .toString('utf8', 5)
+        .split('\0')
         .filter((_, i) => i % 2 === 0 && i !== 0);
     }
   } else {
-    lines = buffer.toString("utf8").trim().split("\n");
+    lines = buffer.toString('utf8').trim().split('\n');
   }
   const versions = lines
     .map((line, i) => {
@@ -316,9 +316,9 @@ function safeJsonParse(s: string) {
 function resolveCacheDir(cacheDir: string): string {
   let cargoHome = process.env.CARGO_HOME;
   if (cargoHome === undefined) {
-    cargoHome = path.resolve(os.homedir(), ".cargo");
+    cargoHome = path.resolve(os.homedir(), '.cargo');
   }
-  return path.resolve(cargoHome, "registry/index", cacheDir, ".cache");
+  return path.resolve(cargoHome, 'registry/index', cacheDir, '.cache');
 }
 
 /**
@@ -327,7 +327,7 @@ function resolveCacheDir(cacheDir: string): string {
 function resolveIndexPath(name: string): string {
   switch (name.length) {
     case 0:
-      return "";
+      return '';
     case 1:
       return `1/${name}`;
     case 2:

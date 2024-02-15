@@ -4,19 +4,19 @@ import {
   workspace,
   type ExtensionContext,
   type TextEditor,
-} from "vscode";
+} from 'vscode';
 
-import { decorate } from "./decorate.js";
-import { loadRegistries } from "./config.js";
-import log from "./log.js";
+import { decorate } from './decorate.js';
+import { loadRegistries } from './config.js';
+import log from './log.js';
 
 const decoratedEditors: TextEditor[] = [];
 
 export async function activate(context: ExtensionContext) {
-  log.info("Sparse Crates activated");
+  log.info('Sparse Crates activated');
 
   let disposable = commands.registerCommand(
-    "sparse-crates.updateRepositories",
+    'sparse-crates.updateRepositories',
     updateRepositories,
   );
 
@@ -31,7 +31,7 @@ export async function activate(context: ExtensionContext) {
         0,
         decoratedEditors.length,
         ...editors.filter((editor) => {
-          if (editor.document.fileName.endsWith("Cargo.toml")) {
+          if (editor.document.fileName.endsWith('Cargo.toml')) {
             if (!decoratedEditors.includes(editor)) {
               decorate(editor);
             }
@@ -44,7 +44,7 @@ export async function activate(context: ExtensionContext) {
     }),
     // Decorate files when their changes are saved.
     workspace.onDidSaveTextDocument(async (document) => {
-      if (document.fileName.endsWith("Cargo.toml")) {
+      if (document.fileName.endsWith('Cargo.toml')) {
         const editor = window.visibleTextEditors.find(
           (e) => e.document === document,
         );
@@ -60,5 +60,5 @@ export function deactivate() {}
 
 async function updateRepositories() {
   await loadRegistries();
-  window.showInformationMessage("Cargo repository list updated");
+  window.showInformationMessage('Cargo repository list updated');
 }

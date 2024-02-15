@@ -1,23 +1,23 @@
-import path from "path";
+import path from 'path';
 
-import semver from "semver";
-import { parseTOML, ParseError } from "toml-eslint-parser";
-import type { TOMLProgram, TOMLTable } from "toml-eslint-parser/lib/ast/ast.js";
+import semver from 'semver';
+import { parseTOML, ParseError } from 'toml-eslint-parser';
+import type { TOMLProgram, TOMLTable } from 'toml-eslint-parser/lib/ast/ast.js';
 import {
   type DecorationOptions,
   MarkdownString,
   type TextEditor,
   window,
-} from "vscode";
+} from 'vscode';
 
-import { getRegistries, getUseCargoCache } from "./config.js";
-import { fetchVersions } from "./fetch.js";
-import log from "./log.js";
-import { parseCargoDependencies } from "./parse.js";
+import { getRegistries, getUseCargoCache } from './config.js';
+import { fetchVersions } from './fetch.js';
+import log from './log.js';
+import { parseCargoDependencies } from './parse.js';
 
 const DECORATION_TYPE = window.createTextEditorDecorationType({
   after: {
-    margin: "2em",
+    margin: '2em',
   },
 });
 
@@ -34,7 +34,7 @@ export async function decorate(editor: TextEditor) {
     );
   } else {
     const dependencies = parseCargoDependencies(
-      toml.body[0].body.filter((v): v is TOMLTable => v.type === "TOMLTable"),
+      toml.body[0].body.filter((v): v is TOMLTable => v.type === 'TOMLTable'),
     );
     const options = await Promise.all(
       dependencies.map(async (d): Promise<DecorationOptions> => {
@@ -83,7 +83,7 @@ export async function decorate(editor: TextEditor) {
           log.error(
             `${d.name} - no registry found for ${d.registry} or default registry`,
           );
-          versionsResult = new Error("no crate found in configured registries");
+          versionsResult = new Error('no crate found in configured registries');
         }
 
         const { hoverMessage, contentText } = decorateDependency(
@@ -112,11 +112,11 @@ export async function decorate(editor: TextEditor) {
   }
 }
 
-const SYMBOL_UP_TO_DATE = "✅";
+const SYMBOL_UP_TO_DATE = '✅';
 // TODO: parse Cargo.lock
 //const SYMBOL_OLD_LOCKED = '⛔';
-const SYMBOL_UPGRADABLE = "❌";
-const SYMBOL_ERROR = "❗❗❗";
+const SYMBOL_UPGRADABLE = '❌';
+const SYMBOL_ERROR = '❗❗❗';
 
 function decorateDependency(
   name: string,
@@ -179,7 +179,7 @@ function getHoverMessage(
   s.appendMarkdown(`- **Latest**: ${getLink(latest, name, docs)}\n\n`);
   // TODO: parse Cargo.lock
   //`**Locked version**: ${getVersionMarkdown(locked, name, docs)}\n\n`
-  s.appendMarkdown("- **Locked**: feature not implemented\n\n");
+  s.appendMarkdown('- **Locked**: feature not implemented\n\n');
   return s;
 }
 
@@ -191,7 +191,7 @@ function getLink(
   if (v === null) {
     return `no versions of the crate ${name} satisfy the given requirement`;
   } else if (v === undefined) {
-    return "not available";
+    return 'not available';
   } else if (docs === undefined) {
     return v.format();
   } else {
