@@ -1,17 +1,29 @@
 import {
   window,
+  commands,
   workspace,
   type ExtensionContext,
   type TextEditor,
 } from 'vscode';
 
 import { decorate } from './decorate.js';
+import { loadRegistries } from './config.js';
 import log from './log.js';
 
 const decoratedEditors: TextEditor[] = [];
 
-export function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext) {
   log.info('Sparse Crates activated');
+
+  let disposable = commands.registerCommand(
+    'sparse-crates.updateRepositories',
+    updateRepositories,
+  );
+
+  context.subscriptions.push(disposable);
+
+  await loadRegistries();
+
   context.subscriptions.push(
     // Decorate files when they are first opened.
     window.onDidChangeVisibleTextEditors((editors) => {
@@ -45,3 +57,8 @@ export function activate(context: ExtensionContext) {
 }
 
 export function deactivate() {}
+
+async function updateRepositories() {
+  await loadRegistries();
+  window.showInformationMessage('Cargo repository list updated');
+}

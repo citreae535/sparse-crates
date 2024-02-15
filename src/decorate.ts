@@ -10,7 +10,7 @@ import {
   window,
 } from 'vscode';
 
-import { getRegistry, getUseCargoCache } from './config.js';
+import { getRegistries, getUseCargoCache } from './config.js';
 import { fetchVersions } from './fetch.js';
 import log from './log.js';
 import { parseCargoDependencies } from './parse.js';
@@ -38,19 +38,54 @@ export async function decorate(editor: TextEditor) {
     );
     const options = await Promise.all(
       dependencies.map(async (d): Promise<DecorationOptions> => {
-        const registry = getRegistry(d.registry, scope);
+        const registries = await getRegistries();
+        const registryProperty = d.registry?.toString();
+
+        let versionsResult: semver.SemVer[] | Error | undefined = undefined;
+
+        const registry = registries.default;
         const docs = registry instanceof Error ? undefined : registry.docs;
-        let versionsResult: semver.SemVer[] | Error;
+
         if (registry instanceof Error) {
           log.error(`${d.name} - ${registry.message}`);
-          versionsResult = registry;
         } else {
-          versionsResult = await fetchVersions(
-            d.name,
-            registry,
-            getUseCargoCache(scope),
-          );
+          if (
+            registryProperty === undefined ||
+            (registryProperty !== undefined &&
+              registryProperty === registry.name)
+          ) {
+            versionsResult = await fetchVersions(
+              d.name,
+              registry,
+              getUseCargoCache(scope),
+            );
+          }
         }
+
+        if (versionsResult === undefined) {
+          const otherRegistries = registries.secondary;
+          for (const otherRegistry of otherRegistries) {
+            if (
+              registryProperty === undefined ||
+              (registryProperty !== undefined &&
+                registryProperty === otherRegistry.name)
+            ) {
+              versionsResult = await fetchVersions(
+                d.name,
+                otherRegistry,
+                getUseCargoCache(scope),
+              );
+            }
+          }
+        }
+
+        if (versionsResult === undefined) {
+          log.error(
+            `${d.name} - no registry found for ${d.registry} or default registry`,
+          );
+          versionsResult = new Error('no crate found in configured registries');
+        }
+
         const { hoverMessage, contentText } = decorateDependency(
           d.name,
           d.version,

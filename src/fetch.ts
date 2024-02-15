@@ -67,6 +67,9 @@ export async function fetchVersions(
       }
     }
     if (versions === undefined) {
+      const authHeader: Record<string, string> =
+        registry.token !== undefined ? { Authorization: registry.token } : {};
+
       let v: semver.SemVer[] | Error;
       if (registry.index.protocol === 'file') {
         v = await fetchLocal(
@@ -75,7 +78,7 @@ export async function fetchVersions(
           'local registry',
         );
       } else {
-        v = await fetchRemote(name, registry.index);
+        v = await fetchRemote(name, registry.index, authHeader);
       }
       if (!(v instanceof Error)) {
         crateVersionsCache.set(name, v);
@@ -97,6 +100,7 @@ const httpsAgent = new https.Agent({
 async function fetchRemote(
   name: string,
   registry: URL,
+  extraHeaders: Record<string, string> = {},
 ): Promise<semver.SemVer[] | Error> {
   const url = new URL(
     path.posix.join(registry.pathname, resolveIndexPath(name)),
@@ -116,6 +120,7 @@ async function fetchRemote(
       headers: {
         'User-Agent':
           'VSCode.SparseCrates (https://marketplace.visualstudio.com/items?itemName=citreae535.sparse-crates)',
+        ...extraHeaders,
       },
     },
     30000,

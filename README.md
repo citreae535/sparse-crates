@@ -22,6 +22,8 @@ This is a fork of the extension [**crates**](https://github.com/serayuzgur/crate
 
 ## Configurations
 
+- `sparse-crates.usePrivateRegistry`: If true, the extension will search for the `~/.cargo/config` file and use the `replace-with` and `registry` keys to find the private registry URL. `cratesIoInex` and `registries` config are ignored if this is true.
+
 - `sparse-crates.useCargoCache`: If true, Cargo's index cache is searched first before the registries. Cache must be stored in the sparse format.
 
 - `sparse-crates.cratesIoIndex`: The index URL of the default crates.io registry. Change this value only if you use a remote or local mirror of crates.io. The index must use the sparse protocol. Use a file URL if the mirror is on disk.
@@ -29,12 +31,13 @@ This is a fork of the extension [**crates**](https://github.com/serayuzgur/crate
 - `sparse-crates.cratesIoCache`: The index cache directory of the default crates.io registry. Change this value only if you use a remote or local mirror of crates.io. You can find the directories at CARGO_HOME/registry/index.
 
 - `sparse-crates.registries`: An array of alternate registries. Each item is an object with two required and two optional properties.
+
 ```json
 {
-    "name": "(Required) The name of the registry. The name of the registry. It must be the same as your dependencies' \"registry\" key.",
-    "index": "(Required) The index URL of the registry. The index must use the sparse protocol. Use a file URL if the registry is on disk.",
-    "cache": "(Optional) Cargo's index cache directory of the registry. You can find the directories at CARGO_HOME/registry/index. Cache is not searched for the registry if this property is not given.",
-    "docs": "(Optional) The docs URL of the registry, if one exists. The link to the docs of a specific version of a crate is obtained by `${docs}${name}/${version}`. This is only used when rendering hover messages on the decorators."
+  "name": "(Required) The name of the registry. The name of the registry. It must be the same as your dependencies' \"registry\" key.",
+  "index": "(Required) The index URL of the registry. The index must use the sparse protocol. Use a file URL if the registry is on disk.",
+  "cache": "(Optional) Cargo's index cache directory of the registry. You can find the directories at CARGO_HOME/registry/index. Cache is not searched for the registry if this property is not given.",
+  "docs": "(Optional) The docs URL of the registry, if one exists. The link to the docs of a specific version of a crate is obtained by `${docs}${name}/${version}`. This is only used when rendering hover messages on the decorators."
 }
 ```
 
